@@ -13,13 +13,16 @@ app.use(express.json());
 // PostgreSQL Connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,  
+  },
 });
 
 pool.connect()
   .then(() => console.log("✅ Connected to PostgreSQL"))
   .catch(err => console.error("❌ Database connection error:", err));
 
-// Test Route (For Checking Server Status)
+
 app.get("/", (req, res) => {
   res.send("Backend is running!");
 });
