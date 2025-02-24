@@ -48,7 +48,7 @@ export default {
       try {
         console.log("🔹 Attempting registration...");
 
-        const response = await fetch("http://localhost:5000/auth/register", {
+        const response = await fetch("https://sarkie-backend.onrender.com/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -82,7 +82,7 @@ export default {
       try {
         console.log(`🟡 Sending verification code to ${email}...`);
 
-        const response = await fetch("http://localhost:5000/auth/send-verification-code", {
+        const response = await fetch("https://sarkie-backend.onrender.com/auth/send-verification-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),

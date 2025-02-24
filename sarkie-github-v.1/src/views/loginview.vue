@@ -47,7 +47,7 @@ export default {
         console.log("🔹 Attempting login with:", this.email, this.password);
 
         // ✅ Send login request to the correct backend route
-        const response = await axios.post("http://localhost:5000/auth/login", {
+        const response = await axios.post("https://sarkie-backend.onrender.com/auth/login", {
           email: this.email,
           password: this.password,
         });

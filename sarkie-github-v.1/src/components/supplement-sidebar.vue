@@ -60,7 +60,7 @@ export default {
   methods: {
     async fetchSupplements() {
       try {
-        const response = await fetch(`http://localhost:5000/supplements/${this.user.id}`);
+        const response = await fetch(`https://sarkie-backend.onrender.com/supplements/${this.user.id}`);
         if (!response.ok) throw new Error("Failed to fetch supplements.");
         this.supplements = await response.json();
       } catch (error) {
@@ -71,7 +71,7 @@ export default {
       if (!this.newSupplement.name.trim()) return;
 
       try {
-        const response = await fetch("http://localhost:5000/supplements", {
+        const response = await fetch("https://sarkie-backend.onrender.com/supplements", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -103,7 +103,7 @@ export default {
     },
     async confirmDelete() {
       try {
-        const response = await fetch(`http://localhost:5000/supplements/${this.selectedSupplementId}`, {
+        const response = await fetch(`https://sarkie-backend.onrender.com/supplements/${this.selectedSupplementId}`, {
           method: "DELETE",
         });
 

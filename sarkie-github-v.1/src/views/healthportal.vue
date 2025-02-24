@@ -151,7 +151,7 @@ const fetchEffectsData = async () => {
   }
 
   try {
-    const response = await axios.get(`http://localhost:5000/supplements/user-effects/${userId}`);
+    const response = await axios.get(`https://sarkie-backend.onrender.com/supplements/user-effects/${userId}`);
     console.log("✅ Effects Data:", response.data);
     userEffects.value = response.data;
   } catch (error) {
@@ -165,7 +165,7 @@ const submitPositiveEffect = async () => {
   if (!desc) return;
 
   try {
-    await axios.post("http://localhost:5000/supplements/user-effects", {
+    await axios.post("https://sarkie-backend.onrender.com/supplements/user-effects", {
       user_id: userId,
       effect_type: "positive",
       effect_description: desc
@@ -185,7 +185,7 @@ const submitSideEffect = async () => {
   if (!desc) return;
 
   try {
-    await axios.post("http://localhost:5000/supplements/user-effects", {
+    await axios.post("https://sarkie-backend.onrender.com/supplements/user-effects", {
       user_id: userId,
       effect_type: "negative",
       effect_description: desc
@@ -230,7 +230,7 @@ const toggleDeleteMode = (effectType) => {
 const deleteSingleEffect = async (effectId) => {
   try {
     console.log("Deleting effect ID:", effectId);
-    await axios.delete(`http://localhost:5000/supplements/user-effects/${effectId}`);
+    await axios.delete(`https://sarkie-backend.onrender.com/supplements/user-effects/${effectId}`);
     await fetchEffectsData();
   } catch (error) {
     console.error("❌ Error deleting effect:", error);

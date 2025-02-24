@@ -82,7 +82,7 @@
     // Log the payload before sending
     console.log("📤 Saving USER message:", { user_id: userId, message: this.userInput, sender: "user" });
 
-    await fetch("http://localhost:5000/conversations", {
+    await fetch("https://sarkie-backend.onrender.com/conversations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -100,7 +100,7 @@
   try {
     console.log("🟢 [API REQUEST] Sending message to AI...");
 
-    const response = await fetch("http://localhost:5000/chat", {
+    const response = await fetch("https://sarkie-backend.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: this.userInput, user_id: userId }),
@@ -120,7 +120,7 @@
     // Log the AI response payload
     console.log("📤 Saving AI message:", { user_id: userId, message: data.reply, sender: "ai" });
 
-    await fetch("http://localhost:5000/conversations", {
+    await fetch("https://sarkie-backend.onrender.com/conversations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
