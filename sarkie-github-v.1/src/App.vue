@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="app-wrapper">
     <!-- ✅ Supplement Sidebar (only for logged-in users) -->
-    <SupplementSidebar v-if="user" />
+    <SupplementSidebar />
 
     <!-- ✅ Dynamic Health Portal Button (Changes to "Exit Health Portal" if inside health portal) -->
     <router-link 
@@ -34,7 +34,7 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SupplementSidebar from "./components/supplement-sidebar.vue";
-import router from "./router/router.js"; // ✅ Ensures direct path is used
+import router from "./router/router.js"; 
 
 // ✅ Debugging: Log all registered routes
 console.log("✅ Registered Routes:", router.getRoutes());
@@ -44,12 +44,12 @@ export default {
   components: { SupplementSidebar },
   setup() {
     const route = useRoute();
-    const isInHealthPortal = computed(() => route.path === "/health-portal"); // ✅ Detects if user is in health portal
+    const isInHealthPortal = computed(() => route.path === "/health-portal"); // Detects if user is in health portal
     return { isInHealthPortal };
   },
   data() {
     return {
-      user: JSON.parse(localStorage.getItem("user")) || null, // ✅ Stores logged-in user data
+      user: JSON.parse(localStorage.getItem("user")) || null, // Stores logged-in user data
     };
   },
   computed: {
@@ -73,7 +73,7 @@ export default {
       this.$router.push("/login");
     },
     updateUser(newUser) {
-      this.user = newUser; // ✅ Dynamically updates user state on login
+      this.user = newUser; // Dynamically updates user state on login
     },
   },
 };
@@ -89,7 +89,7 @@ export default {
 /* ✅ Visit/Exit Health Portal Button (Beside Sidebar) */
 .health-portal-btn {
   position: absolute;
-  left: 310px; /* Adjusted to sit right next to sidebar */
+  left: 310px; 
   top: 15px;
   padding: 8px 16px;
   background: #444654;
@@ -104,16 +104,14 @@ export default {
   background: #0056b3;
 }
 
-/* 🔹 Adjust Main Content Layout Based on Sidebar */
 .main-content {
   flex-grow: 1;
   transition: padding-left 0.3s ease-in-out;
 }
 .main-content.shift-right {
-  padding-left: 250px; /* Sidebar width */
+  padding-left: 250px; 
 }
 
-/* 🔹 Top Right Container */
 .top-right {
   position: absolute;
   top: 15px;
@@ -124,7 +122,6 @@ export default {
   gap: 10px;
 }
 
-/* 🔹 User Info Box */
 .user-info {
   background: #444654;
   color: white;
@@ -133,7 +130,6 @@ export default {
   font-size: 0.9rem;
 }
 
-/* 🔹 Login/Logout Button */
 .login-button,
 .logout-button {
   padding: 8px 15px;
@@ -152,7 +148,6 @@ export default {
   background: #565869;
 }
 
-/* ✅ Fix background color */
 .app-wrapper {
   background: #343541;
   color: white;
