@@ -164,7 +164,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;  /* << This ensures text is centered, including "No supplements added yet." */
+  text-align: center; 
 }
 
 h2 {
