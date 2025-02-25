@@ -1,5 +1,3 @@
-console.log("🚀 Auth routes are being loaded NOW!");
-
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");

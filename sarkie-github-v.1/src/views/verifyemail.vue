@@ -35,7 +35,7 @@
         try {
           console.log("🔹 Verifying code...");
   
-          const response = await fetch("https://sarkie-backend.onrender.comauth/verify-code", {
+          const response = await fetch("https://sarkie-backend.onrender.com/auth/verify-code", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
