@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import LoginView from "../views/loginview.vue";
 import RegisterView from "../views/registerview.vue";
 import ChatView from "../views/chatview.vue";
-import HealthPortal from "../views/healthportal.vue"; // ✅ Use relative path
+import HealthPortal from "../views/healthportal.vue"; 
 import VerifyEmail from "../views/verifyemail.vue";
 
 
@@ -10,7 +10,7 @@ const routes = [
   { path: "/", component: ChatView }, 
   { path: "/login", component: LoginView, meta: { requiresGuest: true } }, 
   { path: "/register", component: RegisterView, meta: { requiresGuest: true } }, 
-  { path: "/health-portal", component: HealthPortal }, // ✅ Corrected to match the import
+  { path: "/health-portal", component: HealthPortal }, 
   { path: "/verify-email", component: VerifyEmail }
 ];
 

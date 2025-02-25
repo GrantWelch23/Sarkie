@@ -1,39 +1,51 @@
 <template>
   <div class="sidebar">
-
     <h2>Your Supplements</h2>
 
-    <!-- List Supplements -->
-    <ul v-if="supplements.length">
-      <li v-for="supplement in supplements" :key="supplement.id"
-          @click="selectSupplementToRemove(supplement.id)"
-          :class="{ removable: removeMode }">
-        <span>{{ supplement.name }} - {{ supplement.dosage }} ({{ supplement.frequency }})</span>
-      </li>
-    </ul>
-    <p v-else>No supplements added yet.</p>
+    <!-- If user is logged in, show the supplement list and controls -->
+    <div v-if="user">
+      <!-- List Supplements -->
+      <ul v-if="supplements.length">
+        <li v-for="supplement in supplements" :key="supplement.id"
+            @click="selectSupplementToRemove(supplement.id)"
+            :class="{ removable: removeMode }">
+          <span>{{ supplement.name }} - {{ supplement.dosage }} ({{ supplement.frequency }})</span>
+        </li>
+      </ul>
+      <p v-else>No supplements added yet.</p>
 
-    <!-- Add Supplement Form -->
-    <button @click="showAddForm = !showAddForm" class="toggle-btn">
-      {{ showAddForm ? "Cancel" : "Add Supplement" }}
-    </button>
-    <div v-if="showAddForm" class="inline-form">
-      <input v-model="newSupplement.name" type="text" placeholder="Supplement Name" class="input-field" />
-      <input v-model="newSupplement.dosage" type="text" placeholder="Dosage (e.g., 500mg)" class="input-field" />
-      <input v-model="newSupplement.frequency" type="text" placeholder="Frequency (e.g., Daily)" class="input-field" />
-      <button @click="addSupplement" class="confirm-btn">Save</button>
+      <!-- Add Supplement Form -->
+      <button @click="showAddForm = !showAddForm" class="toggle-btn">
+        {{ showAddForm ? "Cancel" : "Add Supplement" }}
+      </button>
+      <div v-if="showAddForm" class="inline-form">
+        <input v-model="newSupplement.name" type="text" placeholder="Supplement Name" class="input-field" />
+        <input v-model="newSupplement.dosage" type="text" placeholder="Dosage (e.g., 500mg)" class="input-field" />
+        <input v-model="newSupplement.frequency" type="text" placeholder="Frequency (e.g., Daily)" class="input-field" />
+        <button @click="addSupplement" class="confirm-btn">Save</button>
+      </div>
+
+      <!-- Remove Supplement Button -->
+      <button @click="toggleRemoveMode" class="toggle-btn remove-btn">
+        {{ removeMode ? "Cancel Remove" : "Remove Supplement" }}
+      </button>
+
+      <!-- Remove Confirmation -->
+      <div v-if="showRemoveConfirm" class="inline-form">
+        <p>Are you no longer taking this supplement?</p>
+        <button @click="confirmDelete" class="confirm-btn">Yes</button>
+        <button @click="showRemoveConfirm = false" class="cancel-btn">No</button>
+      </div>
     </div>
 
-    <!-- Remove Supplement Button -->
-    <button @click="toggleRemoveMode" class="toggle-btn remove-btn">
-      {{ removeMode ? "Cancel Remove" : "Remove Supplement" }}
-    </button>
-
-    <!-- Remove Confirmation -->
-    <div v-if="showRemoveConfirm" class="inline-form">
-      <p>Are you no longer taking this supplement?</p>
-      <button @click="confirmDelete" class="confirm-btn">Yes</button>
-      <button @click="showRemoveConfirm = false" class="cancel-btn">No</button>
+    <!-- If user is NOT logged in, show a link to login or register -->
+    <div v-else>
+      <p>
+        <router-link to="/login">Login</router-link>
+        or
+        <router-link to="/register">Register</router-link>
+        to begin supplement tracking!
+      </p>
     </div>
   </div>
 </template>
@@ -49,10 +61,12 @@ export default {
       removeMode: false,
       selectedSupplementId: null,
       newSupplement: { name: "", dosage: "", frequency: "" },
+      // Attempt to read from localStorage; if none, user remains null
       user: JSON.parse(localStorage.getItem("user")) || null,
     };
   },
   mounted() {
+    // Only fetch supplements if the user is logged in
     if (this.user) {
       this.fetchSupplements();
     }
