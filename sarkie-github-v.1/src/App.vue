@@ -11,6 +11,7 @@
   :tabindex="user ? '0' : '-1'"
 >
   {{ isInHealthPortal ? "Exit Health Portal" : "Visit Health Portal" }}
+  <span v-if="!user" class="tooltip">Log in to visit Health Portal</span>
 </router-link>
 
 
@@ -104,8 +105,34 @@ export default {
 }
 
 .disabled-link {
-  opacity: 0;  /* Makes it invisible */
+  opacity: 0.5;  /* Makes it invisible */
+  cursor: not-allowed;
+  filter: grayscale(80%);
   pointer-events: none;  /* Prevents clicking */
+}
+
+/* Tooltip (Initially Hidden) */
+.tooltip {
+  visibility: hidden;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+/* Show Tooltip on Hover */
+.disabled-link:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 .health-portal-btn:hover {
