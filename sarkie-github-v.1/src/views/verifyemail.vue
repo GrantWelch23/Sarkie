@@ -50,7 +50,7 @@
             throw new Error(data.error || "Verification failed.");
           }
   
-          console.log("✅ Email verified:", data);
+          console.log(" Email verified:", data);
   
           // Redirect to login after successful verification
           this.$router.push("/login");

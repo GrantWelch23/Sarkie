@@ -143,7 +143,7 @@ export default {
         this.showRemoveConfirm = false;
         this.removeMode = false;
       } catch (error) {
-        console.error("❌ Error deleting supplement:", error);
+        console.error(" Error deleting supplement:", error);
       }
     },
   },

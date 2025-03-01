@@ -33,7 +33,7 @@ import axios from "axios";
 
 export default {
   name: "LoginView",
-  emits: ["user-logged-in"], // ✅ Declare emitted event
+  emits: ["user-logged-in"], // Declare emitted event
   data() {
     return {
       email: "",
@@ -46,7 +46,7 @@ export default {
       try {
         console.log("🔹 Attempting login with:", this.email, this.password);
 
-        // ✅ Send login request to the correct backend route
+        // Send login request to the correct backend route
         const response = await axios.post("https://sarkie-backend.onrender.com/auth/login", {
           email: this.email,
           password: this.password,

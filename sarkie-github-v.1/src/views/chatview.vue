@@ -92,9 +92,9 @@
       }),
     });
 
-    console.log("✅ [DB SAVE SUCCESS] USER message saved.");
+    console.log("[DB SAVE SUCCESS] USER message saved.");
   } catch (error) {
-    console.error("❌ Error saving user message:", error);
+    console.error("Error saving user message:", error);
   }
 
   try {
@@ -130,9 +130,9 @@
       }),
     });
 
-    console.log("✅ [DB SAVE SUCCESS] AI message saved.");
+    console.log("[DB SAVE SUCCESS] AI message saved.");
   } catch (error) {
-    console.error("❌ Error saving AI response:", error);
+    console.error(" Error saving AI response:", error);
   }
 
   this.userInput = ""; // Clear input field

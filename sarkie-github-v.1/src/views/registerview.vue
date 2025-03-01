@@ -64,7 +64,7 @@ export default {
           throw new Error(data.message || "Registration failed");
         }
 
-        console.log("✅ Registration successful:", data);
+        console.log(" Registration successful:", data);
 
         // Send verification email
         await this.sendVerificationCode(this.email);
@@ -73,14 +73,14 @@ export default {
         this.$router.push(`/verify-email?email=${encodeURIComponent(this.email)}`);
 
       } catch (error) {
-        console.error("❌ Error registering:", error);
+        console.error(" Error registering:", error);
         this.errorMessage = error.message;
       }
     },
 
     async sendVerificationCode(email) {
       try {
-        console.log(`🟡 Sending verification code to ${email}...`);
+        console.log(` Sending verification code to ${email}...`);
 
         const response = await fetch("https://sarkie-backend.onrender.com/auth/send-verification-code", {
           method: "POST",
@@ -94,10 +94,10 @@ export default {
           throw new Error(data.error || "Failed to send verification code.");
         }
 
-        console.log("✅ Verification email sent:", data);
+        console.log(" Verification email sent:", data);
 
       } catch (error) {
-        console.error("❌ Error sending verification code:", error);
+        console.error(" Error sending verification code:", error);
         this.errorMessage = "Error sending verification code. Please try again.";
       }
     },

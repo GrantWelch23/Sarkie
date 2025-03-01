@@ -354,7 +354,7 @@ onMounted(fetchEffectsData);
   left: 0;
   right: 0;
   bottom: 0;
-  background: #faf2cc; /* a subtle, slightly greyish variant of #FAE79B */
+  background: #faf2cc; 
   border-top: 1px solid #d2c18f;
   padding: 10px;
   display: flex;
@@ -422,9 +422,7 @@ onMounted(fetchEffectsData);
   border-left: 8px solid purple;
 }
 
-/* ------------------------------------------ */
 /* FINAL OVERRIDES to beat global li { ... }  */
-/* ------------------------------------------ */
 .effects-box ul {
   list-style-type: disc !important;
   list-style-position: outside !important;

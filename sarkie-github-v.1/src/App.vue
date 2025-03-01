@@ -1,15 +1,18 @@
 <template>
   <div id="app" class="app-wrapper">
-    <!-- ✅ Supplement Sidebar (only for logged-in users) -->
+    <!-- Supplement Sidebar (only for logged-in users) -->
     <SupplementSidebar />
 
-    <!-- ✅ Dynamic Health Portal Button (Changes to "Exit Health Portal" if inside health portal) -->
+    <!--- Dynamic Health Portal Button (Changes to "Exit Health Portal" if inside health portal) -->
     <router-link 
-      v-if="user" 
-      :to="isInHealthPortal ? '/' : '/health-portal'" 
-      class="health-portal-btn">
-      {{ isInHealthPortal ? "Exit Health Portal" : "Visit Health Portal" }}
-    </router-link>
+  :to="isInHealthPortal ? '/' : '/health-portal'" 
+  class="health-portal-btn"
+  :class="{ 'disabled-link': !user }"
+  :tabindex="user ? '0' : '-1'"
+>
+  {{ isInHealthPortal ? "Exit Health Portal" : "Visit Health Portal" }}
+</router-link>
+
 
     <div class="main-content" :class="{ 'shift-right': user }">
       <!-- 🔹 Top Bar (User Info + Logout Button) -->
@@ -36,7 +39,7 @@ import { useRoute } from 'vue-router';
 import SupplementSidebar from "./components/supplement-sidebar.vue";
 import router from "./router/router.js"; 
 
-// ✅ Debugging: Log all registered routes
+// Debugging: Log all registered routes
 console.log("✅ Registered Routes:", router.getRoutes());
 
 export default {
@@ -86,7 +89,7 @@ export default {
   display: flex;
 }
 
-/* ✅ Visit/Exit Health Portal Button (Beside Sidebar) */
+/* Visit/Exit Health Portal Button (Beside Sidebar) */
 .health-portal-btn {
   position: absolute;
   left: 310px; 
@@ -98,6 +101,11 @@ export default {
   text-decoration: none;
   font-weight: bold;
   transition: background 0.3s;
+}
+
+.disabled-link {
+  opacity: 0;  /* Makes it invisible */
+  pointer-events: none;  /* Prevents clicking */
 }
 
 .health-portal-btn:hover {
