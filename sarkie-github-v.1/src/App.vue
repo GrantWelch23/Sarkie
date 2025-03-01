@@ -1,46 +1,46 @@
 <template>
   <div id="app" class="app-wrapper">
-    <!-- Supplement Sidebar (only for logged-in users) -->
+    <!-- Supplement Sidebar (always visible) -->
     <SupplementSidebar />
 
-    <!--- Dynamic Health Portal Button (Changes to "Exit Health Portal" if inside health portal) -->
-    <router-link 
-  :to="isInHealthPortal ? '/' : '/health-portal'" 
-  class="health-portal-btn"
-  :class="{ 'disabled-link': !user }"
-  :tabindex="user ? '0' : '-1'"
->
-  {{ isInHealthPortal ? "Exit Health Portal" : "Visit Health Portal" }}
-  <span v-if="!user" class="tooltip">Log in to visit Health Portal</span>
-</router-link>
+    <!-- Health Portal Button (disabled for logged-out users) -->
+    <router-link
+      :to="isInHealthPortal ? '/' : '/health-portal'"
+      class="health-portal-btn"
+      :class="{ 'disabled-link': !user }"
+      :tabindex="user ? '0' : '-1'"
+      @click.native="handlePortalClick"
+    >
+      {{ isInHealthPortal ? "Exit Health Portal" : "Visit Health Portal" }}
+      <!-- Tooltip for logged-out users -->
+      <span v-if="!user" class="tooltip">
+        Login or register to visit the health portal!
+      </span>
+    </router-link>
 
-
-    <div class="main-content" :class="{ 'shift-right': user }">
-      <!-- 🔹 Top Bar (User Info + Logout Button) -->
+    <!-- Always shifted right to accommodate sidebar -->
+    <div class="main-content shift-right">
+      <!-- Top Bar (User Info, Login/Logout) -->
       <div class="top-right">
-        <!-- 🔹 Show User Info if Logged In -->
         <div v-if="user" class="user-info">
           <span>{{ user.name }}</span>
         </div>
-
-        <!-- 🔹 Login / Logout Button -->
         <router-link v-if="!user" to="/login" class="login-button">Login</router-link>
         <button v-if="user" @click="logout" class="logout-button">Logout</button>
       </div>
 
-      <!-- 🔹 Loads the Correct Page -->
+      <!-- Loads current route (chat, login, register, etc.) -->
       <router-view @user-logged-in="updateUser"></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 import SupplementSidebar from "./components/supplement-sidebar.vue";
 import router from "./router/router.js"; 
 
-// Debugging: Log all registered routes
 console.log("✅ Registered Routes:", router.getRoutes());
 
 export default {
@@ -48,18 +48,32 @@ export default {
   components: { SupplementSidebar },
   setup() {
     const route = useRoute();
-    const isInHealthPortal = computed(() => route.path === "/health-portal"); // Detects if user is in health portal
+    // Detect if user is on the health portal route
+    const isInHealthPortal = computed(() => route.path === "/health-portal");
     return { isInHealthPortal };
   },
   data() {
     return {
-      user: JSON.parse(localStorage.getItem("user")) || null, // Stores logged-in user data
+      user: JSON.parse(localStorage.getItem("user")) || null,
     };
   },
-  computed: {
-    isLoggedIn() {
-      return !!this.user;
-    }
+  methods: {
+    // Block navigation if user is not logged in
+    handlePortalClick(e) {
+      if (!this.user) {
+        e.preventDefault();
+        console.log("Please log in to visit the health portal!");
+      }
+    },
+    logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      this.user = null;
+      this.$router.push("/login");
+    },
+    updateUser(newUser) {
+      this.user = newUser;
+    },
   },
   mounted() {
     const token = localStorage.getItem("token");
@@ -69,19 +83,9 @@ export default {
       this.user = JSON.parse(userData);
     }
   },
-  methods: {
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.user = null;
-      this.$router.push("/login");
-    },
-    updateUser(newUser) {
-      this.user = newUser; // Dynamically updates user state on login
-    },
-  },
 };
 </script>
+
 
 
 <style scoped>
@@ -108,7 +112,6 @@ export default {
   opacity: 0.5;  /* Makes it invisible */
   cursor: not-allowed;
   filter: grayscale(80%);
-  pointer-events: none;  /* Prevents clicking */
 }
 
 /* Tooltip (Initially Hidden) */
