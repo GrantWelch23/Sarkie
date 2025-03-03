@@ -60,7 +60,7 @@ export default {
       userInput: "",
       messages: [
         {
-          text: "Hello! I'm the Supplements Analysis and Recommendation Kernel, but you can call me Sarkie! My job is to help you achieve your health goals. If you'd like, you can share your health goals, or you can ask how I work!",
+          text: "Hello! I'm the Supplements Analysis and Research Kernel, but you can call me Sarky! My job is to help you achieve your health goals. If you'd like, you can share your health goals, or you can ask how I work!",
           sender: "sark",
         },
       ],
@@ -72,7 +72,7 @@ export default {
       if (this.userInput.trim() === "") return;
 
       const userId = this.user ? this.user.id : null;
-      console.log("📤 Sending message:", this.userInput, "User ID:", userId);
+      console.log(" Sending message:", this.userInput, "User ID:", userId);
 
       // Add user message to chat
       this.messages.push({ text: this.userInput, sender: "user" });
@@ -113,8 +113,8 @@ export default {
 
         this.messages.push({ text: data.reply, sender: "sark" });
 
-        console.log("📥 [DB SAVE] Attempting to save AI response...");
-        console.log("📤 Saving AI message:", {
+        console.log(" [DB SAVE] Attempting to save AI response...");
+        console.log(" Saving AI message:", {
           user_id: userId,
           message: data.reply,
           sender: "ai",
