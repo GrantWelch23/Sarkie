@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-console.log("✅ Auth routes loaded");
+console.log(" Auth routes loaded");
 
 // CORS Middleware for Handling Frontend Requests
 router.use((req, res, next) => {
@@ -56,7 +56,7 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error logging in:", error);
+    console.error(" Error logging in:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -66,12 +66,12 @@ router.post("/verify-code", async (req, res) => {
   const { email, code } = req.body;
 
   if (!email || !code) {
-    console.log("⚠️ Missing email or code in request.");
+    console.log(" Missing email or code in request.");
     return res.status(400).json({ error: "Email and code are required." });
   }
 
   try {
-    console.log(`🟡 [VERIFY CODE] Checking verification code for: ${email}`);
+    console.log(` [VERIFY CODE] Checking verification code for: ${email}`);
 
     // Retrieve stored code
     const result = await pool.query(
@@ -82,7 +82,7 @@ router.post("/verify-code", async (req, res) => {
     console.log("🔍 Query Result:", result.rows);
 
     if (result.rowCount === 0) {
-      console.log("❌ No verification code found for this email.");
+      console.log(" No verification code found for this email.");
       return res.status(400).json({ error: "No code found for this email." });
     }
 
@@ -91,36 +91,36 @@ router.post("/verify-code", async (req, res) => {
     // Check expiration
     const now = new Date();
     if (now > expires_at) {
-      console.log("⏳ Verification code expired.");
+      console.log(" Verification code expired.");
       return res.status(400).json({ error: "Verification code expired." });
     }
 
     // Check code match
     if (code !== storedCode) {
-      console.log(`❌ Invalid code entered. Expected: ${storedCode}, Received: ${code}`);
+      console.log(` Invalid code entered. Expected: ${storedCode}, Received: ${code}`);
       return res.status(400).json({ error: "Invalid verification code." });
     }
 
-    console.log("✅ Verification code is correct! Updating user status...");
+    console.log(" Verification code is correct! Updating user status...");
 
     // Delete from verification_codes
     await pool.query("DELETE FROM verification_codes WHERE email = $1", [email]);
-    console.log("🗑️ Deleted verification code from database.");
+    console.log(" Deleted verification code from database.");
 
     // Mark user as verified in the users table
     const updateResult = await pool.query("UPDATE users SET verified = true WHERE email = $1 RETURNING *", [email]);
 
     if (updateResult.rowCount === 0) {
-      console.log("❌ Failed to update user verification status.");
+      console.log(" Failed to update user verification status.");
       return res.status(500).json({ error: "Failed to update user verification status." });
     }
 
-    console.log("✅ User successfully verified:", updateResult.rows[0]);
+    console.log(" User successfully verified:", updateResult.rows[0]);
 
     res.json({ message: "Verification successful!" });
 
   } catch (error) {
-    console.error("❌ Error verifying code:", error);
+    console.error(" Error verifying code:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -159,10 +159,10 @@ router.post("/register", async (req, res) => {
     // Insert new user with 'verified' set to FALSE initially
     const newUser = await pool.query(
       "INSERT INTO users (name, email, password_hash, verified) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, email, hashedPassword, false] // ❌ Email verification pending
+      [name, email, hashedPassword, false] //  Email verification pending
     );
 
-    console.log("✅ New User Registered:", newUser.rows[0]);
+    console.log(" New User Registered:", newUser.rows[0]);
 
     res.status(201).json({ 
       message: "User registered successfully! Please verify your email.", 
@@ -170,7 +170,7 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error registering user:", error);
+    console.error(" Error registering user:", error);
     res.status(500).json({ error: "Server error. Please try again later." });
   }
 });
@@ -220,12 +220,12 @@ router.post("/send-verification-code", async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Verification code sent to ${email}`);
+    console.log(` Verification code sent to ${email}`);
 
     res.json({ message: "Verification code sent successfully!" });
 
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error(" Error sending email:", error);
     res.status(500).json({ error: "Failed to send verification code." });
   }
 });

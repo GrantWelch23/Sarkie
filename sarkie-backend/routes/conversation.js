@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
     const { user_id, message, sender } = req.body;
 
     if (!user_id || !message || !sender) {
-      console.log("⚠️ Missing required fields:", req.body);
+      console.log(" Missing required fields:", req.body);
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
     );
 
     if (checkDuplicate.rowCount > 0) {
-      console.log("⚠️ [DUPLICATE DETECTED] Skipping insert:", req.body);
+      console.log(" [DUPLICATE DETECTED] Skipping insert:", req.body);
       return res.status(409).json({ error: "Duplicate message detected" });
     }
 
@@ -34,11 +34,11 @@ router.post("/", async (req, res) => {
       [user_id, message, sender]
     );
 
-    console.log("✅ [DB INSERT SUCCESS] Message saved:", newMessage.rows[0]);
+    console.log(" [DB INSERT SUCCESS] Message saved:", newMessage.rows[0]);
 
     res.json(newMessage.rows[0]);
   } catch (err) {
-    console.error("❌ Error saving message:", err);
+    console.error(" Error saving message:", err);
     res.status(500).send("Server error");
   }
 });
@@ -55,7 +55,7 @@ router.get("/:user_id", async (req, res) => {
 
     res.json(conversation.rows); // Return conversation history
   } catch (err) {
-    console.error("❌ Error retrieving conversation:", err);
+    console.error(" Error retrieving conversation:", err);
     res.status(500).send("Server error");
   }
 });

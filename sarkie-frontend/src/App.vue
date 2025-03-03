@@ -41,7 +41,7 @@ import { useRoute } from "vue-router";
 import SupplementSidebar from "./components/supplement-sidebar.vue";
 import router from "./router/router.js"; 
 
-console.log("✅ Registered Routes:", router.getRoutes());
+console.log(" Registered Routes:", router.getRoutes());
 
 export default {
   name: "App",

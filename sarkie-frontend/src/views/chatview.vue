@@ -1,146 +1,142 @@
 <template>
-    <div class="chat-wrapper">
-      <!-- Chat History -->
-      <div class="chat-container">
-        <div
-          v-for="(message, index) in messages"
-          :key="index"
-          class="chat-message"
-          :class="message.sender"
-        >
-          <!-- AI Messages -->
-          <div v-if="message.sender === 'sark'" class="sark">
-            <img class="sark-avatar" src="/images/sark-avatar1.png" alt="SARK Avatar" />
-            <p class="sark-text">{{ message.text }}</p>
-          </div>
-  
-          <!-- User Messages -->
-          <div v-if="message.sender === 'user'" class="user">
-            <p class="user-text">{{ message.text }}</p>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Pinned Input (Bottom Chat Bar) -->
+  <div class="chat-wrapper">
+    <!-- Chat History -->
+    <div class="chat-container">
       <div
-        class="chat-input-container"
-        style="
-          position: fixed;
-          bottom: 0;
-          left: 290px;
-          width: calc(100% - 270px);
-          background: #343541;
-          border-top: 1px solid #565869;
-          padding: 1rem 0;
-          display: flex;
-          justify-content: center;
-          z-index: 1000;
-        "
+        v-for="(message, index) in messages"
+        :key="index"
+        class="chat-message"
+        :class="message.sender"
       >
-        <div class="chat-input">
-          <input
-            v-model="userInput"
-            type="text"
-            placeholder="Message S.A.R.K..."
-            @keyup.enter="sendMessage"
-          />
-          <button @click="sendMessage">Send</button>
+        <!-- AI Messages -->
+        <div v-if="message.sender === 'sark'" class="sark">
+          <img class="sark-avatar" src="/images/sark-avatar1.png" alt="SARK Avatar" />
+          <p class="sark-text">{{ message.text }}</p>
+        </div>
+
+        <!-- User Messages -->
+        <div v-if="message.sender === 'user'" class="user">
+          <p class="user-text">{{ message.text }}</p>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: "ChatView",
-    data() {
-      return {
-        userInput: "",
-        messages: [
-          {
-            text: "Hello! I'm the Supplements Analysis and Recommendation Kernel, but you can call me Sarkie! My job is to help you achieve your health goals. If you'd like, you can share your health goals, or you can ask how I work!",
-            sender: "sark",
-          },
-        ],
-        user: JSON.parse(localStorage.getItem("user")) || null, // ✅ Ensure user is stored
-      };
+
+    <!-- Pinned Input (Bottom Chat Bar) -->
+    <div
+      class="chat-input-container"
+      style="
+        position: fixed;
+        bottom: 0;
+        left: 290px;
+        width: calc(100% - 270px);
+        background: #343541;
+        border-top: 1px solid #565869;
+        padding: 1rem 0;
+        display: flex;
+        justify-content: center;
+        z-index: 1000;
+      "
+    >
+      <div class="chat-input">
+        <input
+          v-model="userInput"
+          type="text"
+          placeholder="Message S.A.R.K..."
+          @keyup.enter="sendMessage"
+        />
+        <button @click="sendMessage">Send</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { api } from "../Services/api";
+
+export default {
+  name: "ChatView",
+  data() {
+    return {
+      userInput: "",
+      messages: [
+        {
+          text: "Hello! I'm the Supplements Analysis and Recommendation Kernel, but you can call me Sarkie! My job is to help you achieve your health goals. If you'd like, you can share your health goals, or you can ask how I work!",
+          sender: "sark",
+        },
+      ],
+      user: JSON.parse(localStorage.getItem("user")) || null,
+    };
+  },
+  methods: {
+    async sendMessage() {
+      if (this.userInput.trim() === "") return;
+
+      const userId = this.user ? this.user.id : null;
+      console.log("📤 Sending message:", this.userInput, "User ID:", userId);
+
+      // Add user message to chat
+      this.messages.push({ text: this.userInput, sender: "user" });
+
+      try {
+        console.log("📥 [DB SAVE] Attempting to save USER message...");
+        console.log("📤 Saving USER message:", {
+          user_id: userId,
+          message: this.userInput,
+          sender: "user",
+        });
+
+        await api.post("/conversations", {
+          user_id: userId,
+          message: this.userInput,
+          sender: "user",
+        });
+
+        console.log("[DB SAVE SUCCESS] USER message saved.");
+      } catch (error) {
+        console.error("Error saving user message:", error);
+      }
+
+      try {
+        console.log(" [API REQUEST] Sending message to AI...");
+
+        const response = await api.post("/chat", {
+          message: this.userInput,
+          user_id: userId,
+        });
+
+        if (!response.data?.reply) {
+          throw new Error("Invalid AI response format");
+        }
+
+        const data = response.data;
+        console.log("🔹 [AI RESPONSE] Received AI reply:", data.reply);
+
+        this.messages.push({ text: data.reply, sender: "sark" });
+
+        console.log("📥 [DB SAVE] Attempting to save AI response...");
+        console.log("📤 Saving AI message:", {
+          user_id: userId,
+          message: data.reply,
+          sender: "ai",
+        });
+
+        await api.post("/conversations", {
+          user_id: userId,
+          message: data.reply,
+          sender: "ai",
+        });
+
+        console.log("[DB SAVE SUCCESS] AI message saved.");
+      } catch (error) {
+        console.error(" Error saving AI response:", error);
+      }
+
+      this.userInput = ""; // Clear input field
     },
-  
-    methods: {
-        async sendMessage() {
-  if (this.userInput.trim() === "") return;
+  },
+};
+</script>
 
-  const userId = this.user ? this.user.id : null;
-  console.log("📤 Sending message:", this.userInput, "User ID:", userId);
-
-  // Add user message to chat
-  this.messages.push({ text: this.userInput, sender: "user" });
-
-  try {
-    console.log("📥 [DB SAVE] Attempting to save USER message...");
-    
-    // Log the payload before sending
-    console.log("📤 Saving USER message:", { user_id: userId, message: this.userInput, sender: "user" });
-
-    await fetch("https://sarkie-backend.onrender.com/conversations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        message: this.userInput,
-        sender: "user",
-      }),
-    });
-
-    console.log("[DB SAVE SUCCESS] USER message saved.");
-  } catch (error) {
-    console.error("Error saving user message:", error);
-  }
-
-  try {
-    console.log("🟢 [API REQUEST] Sending message to AI...");
-
-    const response = await fetch("https://sarkie-backend.onrender.com/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: this.userInput, user_id: userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("🔹 [AI RESPONSE] Received AI reply:", data.reply);
-
-    this.messages.push({ text: data.reply, sender: "sark" });
-
-    console.log("📥 [DB SAVE] Attempting to save AI response...");
-
-    // Log the AI response payload
-    console.log("📤 Saving AI message:", { user_id: userId, message: data.reply, sender: "ai" });
-
-    await fetch("https://sarkie-backend.onrender.com/conversations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        message: data.reply,
-        sender: "ai",
-      }),
-    });
-
-    console.log("[DB SAVE SUCCESS] AI message saved.");
-  } catch (error) {
-    console.error(" Error saving AI response:", error);
-  }
-
-  this.userInput = ""; // Clear input field
-},
-
-    },
-  };
-  </script>
   
   <style>
   .chat-wrapper {

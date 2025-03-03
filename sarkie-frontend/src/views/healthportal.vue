@@ -21,9 +21,7 @@
               You haven't logged any positive effects yet.
             </p>
 
-            <!-- Bottom Buttons -->
             <div style="margin-top: auto; display: flex; gap: 10px;">
-              <!-- "Remove" toggles single-delete mode -->
               <button
                 class="remove-effect-btn"
                 :class="{ activeDelete: isDeletingPositive }"
@@ -31,14 +29,11 @@
               >
                 {{ isDeletingPositive ? "Cancel Delete" : "Remove" }}
               </button>
-
-              <!--  Log positive effect -->
               <button class="add-effect-btn" @click="showPositiveForm = true">
                 Log Positive Effect
               </button>
             </div>
 
-            <!-- Inline form for new positive effect -->
             <div v-if="showPositiveForm" class="inline-form">
               <input
                 v-model="newPositiveEffect"
@@ -55,7 +50,6 @@
             </div>
           </div>
 
-          <!-- Side Effects -->
           <div class="effects-box negative-effects">
             <ul v-if="userEffects.some(e => e.effect_type === 'negative')">
               <li
@@ -71,9 +65,7 @@
               You haven't logged any side effects yet.
             </p>
 
-            <!-- Bottom Buttons -->
             <div style="margin-top: auto; display: flex; gap: 10px;">
-              <!-- 1) "Remove" toggles single-delete mode -->
               <button
                 class="remove-effect-btn"
                 :class="{ activeDelete: isDeletingNegative }"
@@ -81,14 +73,11 @@
               >
                 {{ isDeletingNegative ? "Cancel Delete" : "Remove" }}
               </button>
-
-              <!-- "Log Side Effect" -->
               <button class="add-effect-btn" @click="showNegativeForm = true">
                 Log Side Effect
               </button>
             </div>
 
-            <!-- Inline form for new negative effect -->
             <div v-if="showNegativeForm" class="inline-form">
               <input
                 v-model="newNegativeEffect"
@@ -107,13 +96,11 @@
         </div>
       </section>
 
-      <!-- Placeholder for Wellness Metrics -->
       <section class="coming-soon wellness">
         <h2>Coming Soon: Wellness Metrics</h2>
         <p>Track your Mood, Energy, and Anxiety over time.</p>
       </section>
 
-      <!-- Placeholder for Sleep Tracking -->
       <section class="coming-soon sleep">
         <h2>Coming Soon: Sleep Tracking</h2>
         <p>Monitor your sleep quality and trends.</p>
@@ -123,83 +110,70 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from "vue";
+import { api } from "../Services/api";
 
-// Retrieve logged-in user data
 const user = JSON.parse(localStorage.getItem("user"));
 const userId = user ? user.id : null;
 
-// Store all effects (both positive and negative)
 const userEffects = ref([]);
 
-// Inline form states
 const showPositiveForm = ref(false);
 const showNegativeForm = ref(false);
 const newPositiveEffect = ref("");
 const newNegativeEffect = ref("");
 
-// Single-delete mode states
 const isDeletingPositive = ref(false);
 const isDeletingNegative = ref(false);
 
-// Fetch existing effects
 const fetchEffectsData = async () => {
   if (!userId) {
-    console.warn("❌ No user logged in.");
+    console.warn(" No user logged in.");
     return;
   }
-
   try {
-    const response = await axios.get(`https://sarkie-backend.onrender.com/supplements/user-effects/${userId}`);
-    console.log("✅ Effects Data:", response.data);
+    const response = await api.get(`/supplements/user-effects/${userId}`);
+    console.log(" Effects Data:", response.data);
     userEffects.value = response.data;
   } catch (error) {
-    console.error("❌ Error fetching effects data:", error);
+    console.error("Error fetching effects data:", error);
   }
 };
 
-// Submit a new positive effect
 const submitPositiveEffect = async () => {
   const desc = newPositiveEffect.value.trim();
   if (!desc) return;
-
   try {
-    await axios.post("https://sarkie-backend.onrender.com/supplements/user-effects", {
+    await api.post("/supplements/user-effects", {
       user_id: userId,
       effect_type: "positive",
-      effect_description: desc
+      effect_description: desc,
     });
-
     newPositiveEffect.value = "";
     showPositiveForm.value = false;
     await fetchEffectsData();
   } catch (err) {
-    console.error("❌ Error adding positive effect:", err);
+    console.error(" Error adding positive effect:", err);
   }
 };
 
-// Submit a new side effect
 const submitSideEffect = async () => {
   const desc = newNegativeEffect.value.trim();
   if (!desc) return;
-
   try {
-    await axios.post("https://sarkie-backend.onrender.com/supplements/user-effects", {
+    await api.post("/supplements/user-effects", {
       user_id: userId,
       effect_type: "negative",
-      effect_description: desc
+      effect_description: desc,
     });
-
     newNegativeEffect.value = "";
     showNegativeForm.value = false;
     await fetchEffectsData();
   } catch (err) {
-    console.error("❌ Error adding side effect:", err);
+    console.error(" Error adding side effect:", err);
   }
 };
 
-// Cancel forms
 const cancelPositiveEffect = () => {
   newPositiveEffect.value = "";
   showPositiveForm.value = false;
@@ -209,31 +183,27 @@ const cancelNegativeEffect = () => {
   showNegativeForm.value = false;
 };
 
-// Toggle single-delete mode
 const toggleDeleteMode = (effectType) => {
   if (effectType === "positive") {
     isDeletingPositive.value = !isDeletingPositive.value;
     if (isDeletingPositive.value) {
-      // turn off negative mode
       isDeletingNegative.value = false;
     }
   } else {
     isDeletingNegative.value = !isDeletingNegative.value;
     if (isDeletingNegative.value) {
-      // turn off positive mode
       isDeletingPositive.value = false;
     }
   }
 };
 
-// Delete a single effect by ID
 const deleteSingleEffect = async (effectId) => {
   try {
     console.log("Deleting effect ID:", effectId);
-    await axios.delete(`https://sarkie-backend.onrender.com/supplements/user-effects/${effectId}`);
+    await api.delete(`/supplements/user-effects/${effectId}`);
     await fetchEffectsData();
   } catch (error) {
-    console.error("❌ Error deleting effect:", error);
+    console.error(" Error deleting effect:", error);
   }
 };
 
@@ -291,7 +261,7 @@ onMounted(fetchEffectsData);
   min-height: 400px;
   padding: 20px;
   border-radius: 10px;
-  background: #FAE79B; /* notepad yellow */
+  background: #FAE79B; 
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   position: relative; /* Let the inline form position absolutely */
   display: flex;
@@ -338,7 +308,7 @@ onMounted(fetchEffectsData);
   margin-top: auto;
   align-self: flex-end;
   padding: 10px 15px;
-  background: #444654; /* old dark gray background */
+  background: #444654; 
   color: white;
   border: none;
   border-radius: 5px;

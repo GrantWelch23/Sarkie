@@ -1,38 +1,40 @@
 <template>
-    <div class="login-wrapper">
-      <div class="login-container">
-        <h2>Register</h2>
-  
-        <form @submit.prevent="handleRegister">
-          <div class="input-group">
-            <label for="name">Name</label>
-            <input v-model="name" type="text" id="name" required />
-          </div>
-  
-          <div class="input-group">
-            <label for="email">Email</label>
-            <input v-model="email" type="email" id="email" required />
-          </div>
-  
-          <div class="input-group">
-            <label for="password">Password</label>
-            <input v-model="password" type="password" id="password" required />
-          </div>
-  
-          <button type="submit" class="register-btn">Register</button>
-        </form>
-  
-        <!-- 🔹 Login Option -->
-        <p class="login-text">
-          Already have an account? <router-link to="/login">Login</router-link>
-        </p>
-  
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      </div>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <h2>Register</h2>
+
+      <form @submit.prevent="handleRegister">
+        <div class="input-group">
+          <label for="name">Name</label>
+          <input v-model="name" type="text" id="name" required />
+        </div>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input v-model="email" type="email" id="email" required />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input v-model="password" type="password" id="password" required />
+        </div>
+
+        <button type="submit" class="register-btn">Register</button>
+      </form>
+
+      <p class="login-text">
+        Already have an account?
+        <router-link to="/login">Login</router-link>
+      </p>
+
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
-  </template>
-  
-  <script>
+  </div>
+</template>
+
+<script>
+import { api } from "../Services/api";
+
 export default {
   name: "RegisterView",
   data() {
@@ -48,33 +50,25 @@ export default {
       try {
         console.log("🔹 Attempting registration...");
 
-        const response = await fetch("https://sarkie-backend.onrender.com/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: this.name,
-            email: this.email,
-            password: this.password,
-          }),
+        const response = await api.post("/auth/register", {
+          name: this.name,
+          email: this.email,
+          password: this.password,
         });
 
-        const data = await response.json();
+        console.log(" Registration successful:", response.data);
 
-        if (!response.ok) {
-          throw new Error(data.message || "Registration failed");
-        }
-
-        console.log(" Registration successful:", data);
-
-        // Send verification email
         await this.sendVerificationCode(this.email);
 
-        // Redirect to email verification page
-        this.$router.push(`/verify-email?email=${encodeURIComponent(this.email)}`);
-
+        this.$router.push(
+          `/verify-email?email=${encodeURIComponent(this.email)}`
+        );
       } catch (error) {
-        console.error(" Error registering:", error);
-        this.errorMessage = error.message;
+        console.error(
+          " Error registering:",
+          error.response?.data?.error || error.message
+        );
+        this.errorMessage = error.response?.data?.error || error.message;
       }
     },
 
@@ -82,28 +76,22 @@ export default {
       try {
         console.log(` Sending verification code to ${email}...`);
 
-        const response = await fetch("https://sarkie-backend.onrender.com/auth/send-verification-code", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+        const response = await api.post("/auth/send-verification-code", {
+          email,
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to send verification code.");
-        }
-
-        console.log(" Verification email sent:", data);
-
+        console.log(" Verification email sent:", response.data);
       } catch (error) {
         console.error(" Error sending verification code:", error);
-        this.errorMessage = "Error sending verification code. Please try again.";
+        this.errorMessage =
+          error.response?.data?.error ||
+          "Error sending verification code. Please try again.";
       }
     },
   },
 };
 </script>
+
 
   
   <style scoped>

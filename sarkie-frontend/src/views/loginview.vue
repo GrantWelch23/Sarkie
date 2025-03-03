@@ -16,29 +16,28 @@
 
         <button type="submit" class="login-btn">Login</button>
 
-        <!-- 🔹 Error Message (Only Shows on Error) -->
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </form>
 
-      <!-- 🔹 Register Option -->
       <p class="register-text">
-        Don't have an account? <router-link to="/register">Register</router-link>
+        Don't have an account?
+        <router-link to="/register">Register</router-link>
       </p>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { api } from "../Services/api";
 
 export default {
   name: "LoginView",
-  emits: ["user-logged-in"], // Declare emitted event
+  emits: ["user-logged-in"],
   data() {
     return {
       email: "",
       password: "",
-      errorMessage: "", // 🔹 For login errors
+      errorMessage: "",
     };
   },
   methods: {
@@ -46,31 +45,27 @@ export default {
       try {
         console.log("🔹 Attempting login with:", this.email, this.password);
 
-        // Send login request to the correct backend route
-        const response = await axios.post("https://sarkie-backend.onrender.com/auth/login", {
+        const response = await api.post("/auth/login", {
           email: this.email,
           password: this.password,
         });
 
-        console.log("✅ Login response:", response.data);
+        console.log(" Login response:", response.data);
 
         if (response.data.error) {
           throw new Error(response.data.error);
         }
 
-        // Store JWT Token in Local Storage
         localStorage.setItem("token", response.data.token);
-
-        // Store User Data (for UI updates)
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        // Emit event to update `App.vue` dynamically
         this.$emit("user-logged-in", response.data.user);
-
-        // Redirect to home page after login
         this.$router.push("/");
       } catch (error) {
-        console.error("❌ Login error:", error.response?.data?.error || error.message);
+        console.error(
+          " Login error:",
+          error.response?.data?.error || error.message
+        );
         this.errorMessage = error.response?.data?.error || "Login failed";
       }
     },

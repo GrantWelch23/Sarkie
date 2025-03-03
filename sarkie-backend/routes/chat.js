@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    console.log(`🟢 [CHAT REQUEST] User ID: ${user_id}, Message: "${message}"`);
+    console.log(` [CHAT REQUEST] User ID: ${user_id}, Message: "${message}"`);
 
     let pastMessages = [];
     let supplementsList = "No supplements have been added yet.";
@@ -98,7 +98,7 @@ router.post("/", async (req, res) => {
 
     const aiReply = response.data.choices[0].message.content || "I have recorded your supplement.";
 
-    console.log(`✅ [AI RESPONSE] "${aiReply}"`);
+    console.log(` [AI RESPONSE] "${aiReply}"`);
 
     // Store messages in database 
     if (user_id) {
@@ -116,7 +116,7 @@ router.post("/", async (req, res) => {
     res.json({ reply: aiReply });
 
   } catch (err) {
-    console.error("❌ Error communicating with OpenAI:", err.response ? err.response.data : err.message);
+    console.error(" Error communicating with OpenAI:", err.response ? err.response.data : err.message);
     res.status(500).json({ error: "AI response error", details: err.response ? err.response.data : err.message });
   }
 });

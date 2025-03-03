@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import { api } from "../Services/api";
+
 export default {
   name: "SupplementSidebar",
   data() {
@@ -91,9 +93,8 @@ export default {
   methods: {
     async fetchSupplements() {
       try {
-        const response = await fetch(`https://sarkie-backend.onrender.com/supplements/${this.user.id}`);
-        if (!response.ok) throw new Error("Failed to fetch supplements.");
-        this.supplements = await response.json();
+        const response = await api.get(`/supplements/${this.user.id}`);
+        this.supplements = response.data;
       } catch (error) {
         console.error("❌ Error fetching supplements:", error);
       }
@@ -102,20 +103,13 @@ export default {
       if (!this.newSupplement.name.trim()) return;
 
       try {
-        const response = await fetch("https://sarkie-backend.onrender.com/supplements", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: this.user.id,
-            name: this.newSupplement.name,
-            dosage: this.newSupplement.dosage,
-            frequency: this.newSupplement.frequency,
-          }),
+        const response = await api.post("/supplements", {
+          user_id: this.user.id,
+          name: this.newSupplement.name,
+          dosage: this.newSupplement.dosage,
+          frequency: this.newSupplement.frequency,
         });
-
-        if (!response.ok) throw new Error("Failed to add supplement.");
-
-        const addedSupplement = await response.json();
+        const addedSupplement = response.data;
         this.supplements.push(addedSupplement);
         this.newSupplement = { name: "", dosage: "", frequency: "" };
         this.showAddForm = false;
@@ -134,12 +128,10 @@ export default {
     },
     async confirmDelete() {
       try {
-        const response = await fetch(`https://sarkie-backend.onrender.com/supplements/${this.selectedSupplementId}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Failed to delete supplement.");
-
-        this.supplements = this.supplements.filter((sup) => sup.id !== this.selectedSupplementId);
+        await api.delete(`/supplements/${this.selectedSupplementId}`);
+        this.supplements = this.supplements.filter(
+          (sup) => sup.id !== this.selectedSupplementId
+        );
         this.showRemoveConfirm = false;
         this.removeMode = false;
       } catch (error) {
@@ -149,6 +141,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style>
 .sidebar {

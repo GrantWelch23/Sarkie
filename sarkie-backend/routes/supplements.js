@@ -7,13 +7,13 @@ const pool = require("../db");
 
 // create a supplement 
 router.post("/", async (req, res) => {
-  console.log("📥 [SUPPLEMENT POST] Incoming Request:", req.body);
+  console.log(" [SUPPLEMENT POST] Incoming Request:", req.body);
 
   try {
     const { user_id, name, dosage, frequency } = req.body;
 
     if (!user_id || !name || !dosage || !frequency) {
-      console.log("⚠️ Missing required fields:", req.body);
+      console.log(" Missing required fields:", req.body);
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -22,11 +22,11 @@ router.post("/", async (req, res) => {
       [user_id, name, dosage, frequency]
     );
 
-    console.log("✅ [DB INSERT SUCCESS] Supplement added:", newSupplement.rows[0]);
+    console.log(" [DB INSERT SUCCESS] Supplement added:", newSupplement.rows[0]);
 
     res.json(newSupplement.rows[0]);
   } catch (err) {
-    console.error("❌ Error adding supplement:", err);
+    console.error(" Error adding supplement:", err);
     res.status(500).send("Server error");
   }
 });
@@ -41,11 +41,11 @@ router.get("/:user_id", async (req, res) => {
       [user_id]
     );
 
-    console.log("✅ [SUPPLEMENTS FETCH SUCCESS] Retrieved supplements:", supplements.rows);
+    console.log(" [SUPPLEMENTS FETCH SUCCESS] Retrieved supplements:", supplements.rows);
 
     res.json(supplements.rows);
   } catch (err) {
-    console.error("❌ Error retrieving supplements:", err);
+    console.error(" Error retrieving supplements:", err);
     res.status(500).send("Server error");
   }
 });
@@ -60,19 +60,19 @@ router.delete("/:id", async (req, res) => {
     const deleteResult = await pool.query("DELETE FROM supplements WHERE id = $1 RETURNING *", [id]);
 
     if (deleteResult.rowCount === 0) {
-      console.log("⚠️ [DELETE FAILED] Supplement not found.");
+      console.log(" [DELETE FAILED] Supplement not found.");
       return res.status(404).json({ error: "Supplement not found" });
     }
 
-    console.log("✅ [DELETE SUCCESS] Supplement deleted:", deleteResult.rows[0]);
+    console.log(" [DELETE SUCCESS] Supplement deleted:", deleteResult.rows[0]);
     res.json({ message: "Supplement deleted successfully" });
   } catch (err) {
-    console.error("❌ Error deleting supplement:", err);
+    console.error(" Error deleting supplement:", err);
     res.status(500).send("Server error");
   }
 });
 
-// ✅ Add a new effect 
+//  Add a new effect 
 router.post("/user-effects", async (req, res) => {
   console.log("📥 [EFFECT POST] Incoming Request:", req.body);
 
@@ -80,7 +80,7 @@ router.post("/user-effects", async (req, res) => {
     const { user_id, effect_type, effect_description } = req.body;
 
     if (!user_id || !effect_type || !effect_description) {
-      console.log("⚠️ Missing required fields:", req.body);
+      console.log(" Missing required fields:", req.body);
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -89,11 +89,11 @@ router.post("/user-effects", async (req, res) => {
       [user_id, effect_type, effect_description]
     );
 
-    console.log("✅ [DB INSERT SUCCESS] Effect added:", newEffect.rows[0]);
+    console.log(" [DB INSERT SUCCESS] Effect added:", newEffect.rows[0]);
 
     res.json(newEffect.rows[0]);
   } catch (err) {
-    console.error("❌ Error adding effect:", err);
+    console.error(" Error adding effect:", err);
     res.status(500).send("Server error");
   }
 });
@@ -103,7 +103,7 @@ router.delete("/user-effects/:effect_id", async (req, res) => {
   try {
     const { effect_id } = req.params;
 
-    console.log(`🗑️ [DELETE] Removing effect ID: ${effect_id}`);
+    console.log(` [DELETE] Removing effect ID: ${effect_id}`);
 
     const deleteResult = await pool.query(
       "DELETE FROM supplement_effects WHERE id = $1 RETURNING *",
@@ -111,14 +111,14 @@ router.delete("/user-effects/:effect_id", async (req, res) => {
     );
 
     if (deleteResult.rowCount === 0) {
-      console.log("⚠️ Effect not found.");
+      console.log(" Effect not found.");
       return res.status(404).json({ error: "Effect not found" });
     }
 
-    console.log(`✅ [DELETE SUCCESS] Removed effect:`, deleteResult.rows[0]);
+    console.log(` [DELETE SUCCESS] Removed effect:`, deleteResult.rows[0]);
     res.json({ message: "Effect deleted successfully" });
   } catch (err) {
-    console.error("❌ Error deleting effect:", err);
+    console.error(" Error deleting effect:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
