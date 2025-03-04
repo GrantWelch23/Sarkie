@@ -8,10 +8,14 @@
         class="chat-message"
         :class="message.sender"
       >
-        <!-- AI Messages -->
+        <!-- AI (SARK) Messages -->
         <div v-if="message.sender === 'sark'" class="sark">
           <img class="sark-avatar" src="/images/sark-avatar1.png" alt="SARK Avatar" />
-          <p class="sark-text">{{ message.text }}</p>
+          <!-- If it's a placeholder (thinking), italicize the text -->
+          <p v-if="message.placeholder" class="sark-text">
+            <em>{{ message.text }}</em>
+          </p>
+          <p v-else class="sark-text">{{ message.text }}</p>
         </div>
 
         <!-- User Messages -->
@@ -72,70 +76,81 @@ export default {
       if (this.userInput.trim() === "") return;
 
       const userId = this.user ? this.user.id : null;
-      console.log(" Sending message:", this.userInput, "User ID:", userId);
+      const userMessage = this.userInput.trim();
 
-      // Add user message to chat
-      this.messages.push({ text: this.userInput, sender: "user" });
+      console.log("Sending message:", userMessage, "User ID:", userId);
 
+      // 1) Add user message to chat immediately
+      this.messages.push({ text: userMessage, sender: "user" });
+
+      // 2) Clear input field immediately so it doesn't hang
+      this.userInput = "";
+
+      // 3) Try saving user message to DB
       try {
         console.log("📥 [DB SAVE] Attempting to save USER message...");
-        console.log("📤 Saving USER message:", {
-          user_id: userId,
-          message: this.userInput,
-          sender: "user",
-        });
-
         await api.post("/conversations", {
           user_id: userId,
-          message: this.userInput,
+          message: userMessage,
           sender: "user",
         });
-
         console.log("[DB SAVE SUCCESS] USER message saved.");
       } catch (error) {
         console.error("Error saving user message:", error);
       }
 
-      try {
-        console.log(" [API REQUEST] Sending message to AI...");
+      // 4) Sark's placeholder "thinking..." message
+      const placeholderIndex = this.messages.push({
+        text: "Thinking...",
+        sender: "sark",
+        placeholder: true,
+      }) - 1;
 
+      // 5) Request AI response
+      try {
+        console.log("[API REQUEST] Sending message to AI...");
         const response = await api.post("/chat", {
-          message: this.userInput,
+          message: userMessage,
           user_id: userId,
         });
 
-        if (!response.data?.reply) {
-          throw new Error("Invalid AI response format");
+        // Log the entire response to debug the structure
+        console.log("Full response from AI endpoint:", response);
+
+        // Fallback in case the API returns 'message' or some other field
+        const aiReply = response.data?.reply || response.data?.message || null;
+        if (!aiReply) {
+          throw new Error("Invalid AI response format - no 'reply' or 'message' field found.");
         }
 
-        const data = response.data;
-        console.log("🔹 [AI RESPONSE] Received AI reply:", data.reply);
+        // Remove the placeholder before pushing real AI response
+        this.messages.splice(placeholderIndex, 1);
+        this.messages.push({ text: aiReply, sender: "sark" });
 
-        this.messages.push({ text: data.reply, sender: "sark" });
-
-        console.log(" [DB SAVE] Attempting to save AI response...");
-        console.log(" Saving AI message:", {
-          user_id: userId,
-          message: data.reply,
-          sender: "ai",
-        });
-
+        // Attempt to save AI response to DB
+        console.log("[DB SAVE] Attempting to save AI response...");
         await api.post("/conversations", {
           user_id: userId,
-          message: data.reply,
+          message: aiReply,
           sender: "ai",
         });
-
         console.log("[DB SAVE SUCCESS] AI message saved.");
       } catch (error) {
-        console.error(" Error saving AI response:", error);
-      }
+        console.error("Error receiving/saving AI response:", error);
 
-      this.userInput = ""; // Clear input field
+        // Remove the placeholder and show error text
+        this.messages.splice(placeholderIndex, 1);
+        this.messages.push({
+          text: "Sorry, there was an error. Please try again.",
+          sender: "sark",
+        });
+      }
     },
   },
 };
 </script>
+
+
 
   
   <style>
