@@ -83,7 +83,7 @@ export default {
       // 1) Add user message to chat immediately
       this.messages.push({ text: userMessage, sender: "user" });
 
-      // 2) Clear input field immediately so it doesn't hang
+      // 2) Clear input field so it doesn't hang
       this.userInput = "";
 
       // 3) Try saving user message to DB
@@ -107,6 +107,7 @@ export default {
       }) - 1;
 
       // 5) Request AI response
+      let aiReply = null;
       try {
         console.log("[API REQUEST] Sending message to AI...");
         const response = await api.post("/chat", {
@@ -118,16 +119,27 @@ export default {
         console.log("Full response from AI endpoint:", response);
 
         // Fallback in case the API returns 'message' or some other field
-        const aiReply = response.data?.reply || response.data?.message || null;
+        aiReply = response.data?.reply || response.data?.message || null;
         if (!aiReply) {
           throw new Error("Invalid AI response format - no 'reply' or 'message' field found.");
         }
-
-        // Remove the placeholder before pushing real AI response
+      } catch (error) {
+        // If the AI request fails, remove the placeholder and show error text
+        console.error("Error receiving AI response:", error);
         this.messages.splice(placeholderIndex, 1);
-        this.messages.push({ text: aiReply, sender: "sark" });
+        this.messages.push({
+          text: "Sorry, there was an error. Please try again.",
+          sender: "sark",
+        });
+        return;
+      }
 
-        // Attempt to save AI response to DB
+      // 6) Remove the placeholder, show the AI's reply
+      this.messages.splice(placeholderIndex, 1);
+      this.messages.push({ text: aiReply, sender: "sark" });
+
+      // 7) Attempt to save AI response to DB
+      try {
         console.log("[DB SAVE] Attempting to save AI response...");
         await api.post("/conversations", {
           user_id: userId,
@@ -136,19 +148,13 @@ export default {
         });
         console.log("[DB SAVE SUCCESS] AI message saved.");
       } catch (error) {
-        console.error("Error receiving/saving AI response:", error);
-
-        // Remove the placeholder and show error text
-        this.messages.splice(placeholderIndex, 1);
-        this.messages.push({
-          text: "Sorry, there was an error. Please try again.",
-          sender: "sark",
-        });
+        console.error("Error saving AI response:", error);
       }
     },
   },
 };
 </script>
+
 
 
 
